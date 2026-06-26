@@ -1,0 +1,137 @@
+package net.godcraft.command;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.godcraft.attachment.ModAttachments;
+import net.godcraft.attachment.PlayerAttunements;
+import net.godcraft.util.AttunementUtil;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import java.util.HashSet;
+import java.util.Set;
+
+public class AttunementCommand {
+    private static final SuggestionProvider<CommandSourceStack> ATTUNEMENT_SUGGESTIONS = (context, builder) -> {
+        for (String id : AttunementUtil.VANILLA_ENCHANTMENT_IDS) {
+            builder.suggest(id);
+        }
+        return builder.buildFuture();
+    };
+
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("attunement")
+            .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            .then(Commands.literal("unlock")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("enchantment", StringArgumentType.string())
+                        .suggests(ATTUNEMENT_SUGGESTIONS)
+                        .executes(AttunementCommand::unlockAttunement))))
+            .then(Commands.literal("unlockall")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .executes(AttunementCommand::unlockAllAttunements)))
+            .then(Commands.literal("lock")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("enchantment", StringArgumentType.string())
+                        .suggests(ATTUNEMENT_SUGGESTIONS)
+                        .executes(AttunementCommand::lockAttunement))))
+            .then(Commands.literal("lockall")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .executes(AttunementCommand::lockAllAttunements)))
+            .then(Commands.literal("status")
+                .executes(AttunementCommand::showStatus))
+        );
+    }
+
+    private static int unlockAttunement(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+            String enchantment = StringArgumentType.getString(context, "enchantment");
+
+            if (!AttunementUtil.VANILLA_ENCHANTMENT_IDS.contains(enchantment)) {
+                context.getSource().sendFailure(Component.literal("Invalid vanilla enchantment: " + enchantment));
+                return 0;
+            }
+
+            PlayerAttunements current = player.getData(ModAttachments.ATTUNEMENTS.get());
+            Set<String> unlocked = new HashSet<>(current.unlocked());
+            if (unlocked.add(enchantment)) {
+                player.setData(ModAttachments.ATTUNEMENTS.get(), new PlayerAttunements(unlocked, current.equipped()));
+                context.getSource().sendSuccess(() -> Component.literal("Successfully unlocked " + enchantment + " for " + player.getScoreboardName()), true);
+            } else {
+                context.getSource().sendFailure(Component.literal(enchantment + " was already unlocked for " + player.getScoreboardName()));
+            }
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("Failed to unlock attunement: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int unlockAllAttunements(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+            PlayerAttunements current = player.getData(ModAttachments.ATTUNEMENTS.get());
+            Set<String> unlocked = new HashSet<>(AttunementUtil.VANILLA_ENCHANTMENT_IDS);
+            player.setData(ModAttachments.ATTUNEMENTS.get(), new PlayerAttunements(unlocked, current.equipped()));
+            context.getSource().sendSuccess(() -> Component.literal("Successfully unlocked all attunements for " + player.getScoreboardName()), true);
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("Failed to unlock all attunements: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int lockAttunement(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+            String enchantment = StringArgumentType.getString(context, "enchantment");
+
+            PlayerAttunements current = player.getData(ModAttachments.ATTUNEMENTS.get());
+            Set<String> unlocked = new HashSet<>(current.unlocked());
+            Set<String> equipped = new HashSet<>(current.equipped());
+
+            if (unlocked.remove(enchantment)) {
+                equipped.remove(enchantment);
+                player.setData(ModAttachments.ATTUNEMENTS.get(), new PlayerAttunements(unlocked, equipped));
+                context.getSource().sendSuccess(() -> Component.literal("Successfully locked " + enchantment + " for " + player.getScoreboardName()), true);
+            } else {
+                context.getSource().sendFailure(Component.literal(enchantment + " was not unlocked for " + player.getScoreboardName()));
+            }
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("Failed to lock attunement: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int lockAllAttunements(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+            player.setData(ModAttachments.ATTUNEMENTS.get(), new PlayerAttunements(new HashSet<>(), new HashSet<>()));
+            context.getSource().sendSuccess(() -> Component.literal("Successfully locked all attunements for " + player.getScoreboardName()), true);
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("Failed to lock all attunements: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int showStatus(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = context.getSource().getPlayerOrException();
+            PlayerAttunements current = player.getData(ModAttachments.ATTUNEMENTS.get());
+            context.getSource().sendSuccess(() -> Component.literal("--- Attunement Status ---"), false);
+            context.getSource().sendSuccess(() -> Component.literal("Unlocked: " + current.unlocked()), false);
+            context.getSource().sendSuccess(() -> Component.literal("Equipped: " + current.equipped()), false);
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("Failed to query status: " + e.getMessage()));
+            return 0;
+        }
+    }
+}

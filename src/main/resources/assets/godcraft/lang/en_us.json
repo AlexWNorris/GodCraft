@@ -1,0 +1,46 @@
+{
+  "itemGroup.godcraft": "GodCraft Tab",
+  "block.godcraft.example_block": "GodCraft Example Block",
+  "item.godcraft.example_item": "GodCraft Example Item",
+
+  "block.godcraft.altar_of_the_gods": "Altar of the Gods",
+  "container.godcraft.altar_of_the_gods": "Altar of the Gods",
+  "item.godcraft.zeus_stormborn_blessing": "Zeus's Stormborn Blessing",
+  "item.godcraft.poseidon_abyssal_lungs_blessing": "Poseidon's Abyssal Lungs Blessing",
+  "item.godcraft.hera_heart_blessing": "Hera's Heart Blessing",
+  "item.godcraft.mending_attunement": "Mending Attunement",
+  "item.godcraft.conduction_attunement": "Conduction Attunement",
+  "enchantment.godcraft.conduction": "Conduction",
+
+  "tooltip.godcraft.blessing_id": "ID: %s",
+  "tooltip.godcraft.blessing_slots_title": "Slotted Blessings:",
+  "tooltip.godcraft.major_slot_equipped": " - Major: %s",
+  "tooltip.godcraft.major_slot_empty": " - Major: [Empty Slot]",
+  "tooltip.godcraft.minor_slot_equipped": " - Minor: %s",
+  "tooltip.godcraft.minor_slot_empty": " - Minor: [Empty Slot]",
+
+  "godcraft.configuration.title": "GodCraft Configs",
+  "godcraft.configuration.section.godcraft.common.toml": "GodCraft Configs",
+  "godcraft.configuration.section.godcraft.common.toml.title": "GodCraft Configs",
+  "godcraft.configuration.items": "Item List",
+  "godcraft.configuration.logDirtBlock": "Log Dirt Block",
+  "godcraft.configuration.magicNumberIntroduction": "Magic Number Text",
+  "godcraft.configuration.magicNumber": "Magic Number",
+
+  "godcraft.attunements.tab.blessings": "Blessings",
+  "godcraft.attunements.tab.attunements": "Attunements",
+  "godcraft.attunements.locked": "Locked",
+  "godcraft.attunements.click_equip": "Click to equip",
+  "godcraft.attunements.click_unequip": "Click to unequip",
+
+  "commands.godcraft.attunement.unlock.success": "Successfully unlocked %s for %s",
+  "commands.godcraft.attunement.unlock.already": "%s was already unlocked for %s",
+  "commands.godcraft.attunement.unlock.invalid": "Invalid vanilla enchantment: %s",
+  "commands.godcraft.attunement.unlockall.success": "Successfully unlocked all attunements for %s",
+  "commands.godcraft.attunement.lock.success": "Successfully locked %s for %s",
+  "commands.godcraft.attunement.lock.not_found": "%s was not unlocked for %s",
+  "commands.godcraft.attunement.lockall.success": "Successfully locked all attunements for %s",
+  "commands.godcraft.attunement.status.title": "--- Attunement Status ---",
+  "commands.godcraft.attunement.status.unlocked": "Unlocked: %s",
+  "commands.godcraft.attunement.status.equipped": "Equipped: %s"
+}

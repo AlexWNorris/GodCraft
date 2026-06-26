@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    "DOD",
+    "OOO"
+  ],
+  "key": {
+    "G": "minecraft:gold_block",
+    "D": "minecraft:diamond",
+    "O": "minecraft:obsidian"
+  },
+  "result": {
+    "count": 1,
+    "id": "godcraft:altar_of_the_gods"
+  }
+}
